@@ -1,5 +1,5 @@
 from unittest import TestCase
-from .http_status import HTTPStatus
+import HTTPStatus
 
 
 class TestHTTPStatus(TestCase):
