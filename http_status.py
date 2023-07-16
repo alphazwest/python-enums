@@ -1,19 +1,19 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
 
 class HTTPStatus(Enum):
     """
     Enumerates common HTTP Status codes with meaningful names as described by the
-    Mozilla Developer Network documentation here: 
-        https://developer.mozilla.org/en-US/docs/Web/HTTP/Status        
+    Mozilla Developer Network documentation here:
+        https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
     """
     # informational
     HTTP_100 = (100, "Continue")
     HTTP_101 = (101, "Switching Protocols")
     HTTP_102 = (102, "Processing")
     HTTP_103 = (103, "Early Hints")
-    
+
     # successful
     HTTP_200 = (200, "Ok")
     HTTP_201 = (201, "Created")
@@ -25,7 +25,7 @@ class HTTPStatus(Enum):
     HTTP_207 = (207, "Multi-Status")
     HTTP_208 = (208, "Already Reported")
     HTTP_226 = (226, "IM Used")
-    
+
     # redirection
     HTTP_300 = (300, "Multiple Choices")
     HTTP_301 = (301, "Moved Permanently")
@@ -36,7 +36,7 @@ class HTTPStatus(Enum):
     HTTP_306 = (306, "Unused")
     HTTP_307 = (307, "Temporary Redirect")
     HTTP_308 = (308, "Permanent Redirect")
-    
+
     # client errors
     HTTP_400 = (400, "Bad Request")
     HTTP_401 = (401, "Unauthorized")
@@ -66,7 +66,7 @@ class HTTPStatus(Enum):
     HTTP_429 = (429, "Too Many Requests")
     HTTP_431 = (431, "Request Header Fields Too Large")
     HTTP_451 = (451, "Unavailable For Legal Reasons")
-    
+
     # server errors
     HTTP_500 = (500, "Internal Server Error")
     HTTP_501 = (501, "Not Implemented")
@@ -79,7 +79,7 @@ class HTTPStatus(Enum):
     HTTP_508 = (508, "Loop Detected")
     HTTP_510 = (510, "Not Extended")
     HTTP_511 = (511, "Network Authorization Required")
-    
+
     def __str__(self) -> str:
         """
         Represents HTTP Status objects in a string format as such:
@@ -87,24 +87,53 @@ class HTTPStatus(Enum):
         """
         return f"HTTP {self.value[0]}: {self.value[1]}"
 
+    def __eq__(self, other):
+        """
+        Compares values directly to the code
+        """
+        if isinstance(other, HTTPStatus):
+            return self.code() == other.code()
+        if not isinstance(other, (int, float)):
+            return False
+        return self.code() == other
+
+    def __gt__(self, other):
+        """
+        Compares values directly to code
+        """
+        if isinstance(other, HTTPStatus):
+            return self.code() < other.code()
+        if not isinstance(other, (int, float)):
+            return False
+        return self.code() > other
+
+    def __ge__(self, other):
+        return self == other or self > other
+
+    def __lt__(self, other):
+        return not self > other and self != other
+
+    def __le__(self, other):
+        return self < other or self == other
+
     def code(self) -> int:
         """
         Returns the numerical code associated with the HTTP Status object.
         """
         return self.value[0]
-    
+
     def desc(self) -> str:
         """
         Returns the string description of the HTTP Status object.
         """
         return self.value[1]
-    
+
     @staticmethod
     def get_from_code(code: int) -> Optional["HTTPStatus"]:
         """
         Returns an HTTP Status object associated with a numeric code.
         """
         for status in HTTPStatus:
-            if status.code == code:
+            if status.code() == code:
                 return status
         return None
